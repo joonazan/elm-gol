@@ -7,7 +7,10 @@ import Color
 
 
 main =
-    piirraRuudukko 10 tyhja
+    tyhja
+        |> laitaRuutuun ( 0, 0 )
+        |> laitaRuutuun ( 3, 2 )
+        |> piirraRuudukko 10
         |> Collage.Render.svg
 
 
@@ -22,6 +25,16 @@ type alias Ruudukko =
 tyhja : Ruudukko
 tyhja =
     Set.empty
+
+
+laitaRuutuun : Piste -> Ruudukko -> Ruudukko
+laitaRuutuun paikka =
+    Set.insert paikka
+
+
+poistaRuudusta : Piste -> Ruudukko -> Ruudukko
+poistaRuudusta paikka =
+    Set.remove paikka
 
 
 piirraRuudukko : Float -> Ruudukko -> Collage msg
