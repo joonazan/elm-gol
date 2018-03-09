@@ -1,17 +1,40 @@
 module Main exposing (..)
 
+import Html
 import Collage.Render
+import Collage.Events exposing (onClick)
 import Collage exposing (..)
 import Set exposing (Set)
 import Color
 
 
+main : Program Never Ruudukko Viesti
 main =
-    tyhjä
-        |> laitaRuutuun ( 0, 0 )
-        |> laitaRuutuun ( 3, 2 )
-        |> piirräRuudukko 10
-        |> Collage.Render.svg
+    Html.beginnerProgram
+        { model =
+            tyhjä
+                |> laitaRuutuun ( 0, 0 )
+                |> laitaRuutuun ( 3, 2 )
+        , view =
+            piirräRuudukko 10
+                >> Collage.Render.svg
+        , update = update
+        }
+
+
+type Viesti
+    = Lisää Piste
+    | Poista Piste
+
+
+update : Viesti -> Ruudukko -> Ruudukko
+update viesti =
+    case viesti of
+        Lisää paikka ->
+            laitaRuutuun paikka
+
+        Poista paikka ->
+            poistaRuudusta paikka
 
 
 type alias Piste =
@@ -37,7 +60,7 @@ poistaRuudusta paikka =
     Set.remove paikka
 
 
-piirräRuudukko : Float -> Ruudukko -> Collage msg
+piirräRuudukko : Float -> Ruudukko -> Collage Viesti
 piirräRuudukko mittakaava ruudukko =
     let
         elävät =
@@ -63,15 +86,20 @@ piirräRuudukko mittakaava ruudukko =
                 (\paikka ( elävät, ulos ) ->
                     let
                         kuollut =
-                            ( elävät, väriksi Color.black )
+                            ( elävät, piirrä Color.black Lisää )
 
-                        väriksi väri =
-                            piirräRuutu mittakaava paikka väri :: ulos
+                        piirrä väri toiminto =
+                            (piirräRuutu mittakaava paikka väri
+                                |> onClick (toiminto paikka)
+                            )
+                                :: ulos
                     in
                         case elävät of
                             eka :: loput ->
                                 if eka == paikka then
-                                    ( loput, väriksi Color.green )
+                                    ( loput
+                                    , piirrä Color.green Poista
+                                    )
                                 else
                                     kuollut
 
