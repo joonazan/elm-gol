@@ -2,9 +2,12 @@ module Main exposing (..)
 
 import Html
 import Collage.Render
+import Collage.Layout exposing (..)
+import Collage.Text
 import Collage.Events exposing (onClick)
 import Collage exposing (..)
 import Set exposing (Set)
+import Dict
 import Color
 
 
@@ -15,16 +18,37 @@ main =
             tyhjä
                 |> laitaRuutuun ( 0, 0 )
                 |> laitaRuutuun ( 3, 2 )
-        , view =
-            piirräRuudukko 10
-                >> Collage.Render.svg
+        , view = view
         , update = update
         }
+
+
+view : Ruudukko -> Html.Html Viesti
+view ruudukko =
+    [ askelNappi, piirräRuudukko 10 ruudukko ]
+        |> List.map (align left)
+        |> vertical
+        |> Collage.Render.svg
+
+
+askelNappi : Collage Viesti
+askelNappi =
+    let
+        teksti =
+            Collage.Text.fromString "Askel"
+                |> rendered
+
+        nappi =
+            filled (uniform Color.yellow) (rectangle 100 29)
+    in
+        group [ teksti, nappi ]
+            |> onClick Simuloi
 
 
 type Viesti
     = Lisää Piste
     | Poista Piste
+    | Simuloi
 
 
 update : Viesti -> Ruudukko -> Ruudukko
@@ -35,6 +59,41 @@ update viesti =
 
         Poista paikka ->
             poistaRuudusta paikka
+
+        Simuloi ->
+            simuloi
+
+
+simuloi : Ruudukko -> Ruudukko
+simuloi ruudukko =
+    let
+        increment pos dict =
+            Dict.update pos
+                (Maybe.map ((+) 1)
+                    >> Maybe.withDefault 1
+                    >> Just
+                )
+                dict
+    in
+        Set.toList ruudukko
+            |> List.foldl
+                (\( x, y ) ->
+                    increment ( x + 1, y )
+                        >> increment ( x - 1, y )
+                        >> increment ( x, y + 1 )
+                        >> increment ( x, y - 1 )
+                        >> increment ( x + 1, y + 1 )
+                        >> increment ( x + 1, y - 1 )
+                        >> increment ( x - 1, y + 1 )
+                        >> increment ( x - 1, y - 1 )
+                )
+                Dict.empty
+            |> Dict.filter
+                (\pos neighbors ->
+                    neighbors == 3 || neighbors == 2 && Set.member pos ruudukko
+                )
+            |> Dict.keys
+            |> Set.fromList
 
 
 type alias Piste =
