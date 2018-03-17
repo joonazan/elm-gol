@@ -1,14 +1,14 @@
 module Main exposing (..)
 
-import Html
-import Collage.Render
-import Collage.Layout exposing (..)
-import Collage.Text
-import Collage.Events exposing (onClick)
 import Collage exposing (..)
-import Set exposing (Set)
-import Dict
+import Collage.Events exposing (onClick)
+import Collage.Layout exposing (..)
+import Collage.Render
+import Collage.Text
 import Color
+import Dict
+import Html
+import Set exposing (Set)
 
 
 main : Program Never Ruudukko Viesti
@@ -41,8 +41,8 @@ askelNappi =
         nappi =
             filled (uniform Color.yellow) (rectangle 100 29)
     in
-        group [ teksti, nappi ]
-            |> onClick Simuloi
+    group [ teksti, nappi ]
+        |> onClick Simuloi
 
 
 type Viesti
@@ -75,25 +75,25 @@ simuloi ruudukko =
                 )
                 dict
     in
-        Set.toList ruudukko
-            |> List.foldl
-                (\( x, y ) ->
-                    increment ( x + 1, y )
-                        >> increment ( x - 1, y )
-                        >> increment ( x, y + 1 )
-                        >> increment ( x, y - 1 )
-                        >> increment ( x + 1, y + 1 )
-                        >> increment ( x + 1, y - 1 )
-                        >> increment ( x - 1, y + 1 )
-                        >> increment ( x - 1, y - 1 )
-                )
-                Dict.empty
-            |> Dict.filter
-                (\pos neighbors ->
-                    neighbors == 3 || neighbors == 2 && Set.member pos ruudukko
-                )
-            |> Dict.keys
-            |> Set.fromList
+    Set.toList ruudukko
+        |> List.foldl
+            (\( x, y ) ->
+                increment ( x + 1, y )
+                    >> increment ( x - 1, y )
+                    >> increment ( x, y + 1 )
+                    >> increment ( x, y - 1 )
+                    >> increment ( x + 1, y + 1 )
+                    >> increment ( x + 1, y - 1 )
+                    >> increment ( x - 1, y + 1 )
+                    >> increment ( x - 1, y - 1 )
+            )
+            Dict.empty
+        |> Dict.filter
+            (\pos neighbors ->
+                neighbors == 3 || neighbors == 2 && Set.member pos ruudukko
+            )
+        |> Dict.keys
+        |> Set.fromList
 
 
 type alias Piste =
@@ -121,12 +121,48 @@ poistaRuudusta paikka =
 
 piirräRuudukko : Float -> Ruudukko -> Collage Viesti
 piirräRuudukko mittakaava ruudukko =
-    let
-        elävät =
-            Set.toList ruudukko
+    näkyvätRuudut ruudukko
+        |> List.foldl
+            (\paikka ( elävät, ulos ) ->
+                let
+                    kuollut =
+                        ( elävät, piirrä Color.black Lisää )
 
+                    piirrä väri toiminto =
+                        (piirräRuutu mittakaava paikka väri
+                            |> onClick (toiminto paikka)
+                        )
+                            :: ulos
+                in
+                case elävät of
+                    eka :: loput ->
+                        if eka == paikka then
+                            ( loput
+                            , piirrä Color.green Poista
+                            )
+                        else
+                            kuollut
+
+                    [] ->
+                        kuollut
+            )
+            ( Set.toList ruudukko, [] )
+        |> Tuple.second
+        |> group
+
+
+piirräRuutu : Float -> Piste -> Color.Color -> Collage msg
+piirräRuutu mittakaava ( x, y ) väri =
+    square mittakaava
+        |> filled (uniform väri)
+        |> shift ( mittakaava * toFloat x, mittakaava * toFloat y )
+
+
+näkyvätRuudut : Ruudukko -> List Piste
+näkyvätRuudut ruudukko =
+    let
         ( äksät, yyt ) =
-            List.unzip elävät
+            List.unzip (Set.toList ruudukko)
 
         vaihteluväli x =
             List.range
@@ -137,41 +173,11 @@ piirräRuudukko mittakaava ruudukko =
         tyhjääNäytetään =
             5
     in
-        -- leksikografinen järjestys, jotta elävät olisivat
-        -- samassa järjestyksessä kuin nämä
-        vaihteluväli äksät
-            |> List.concatMap (\x -> List.map ((,) x) (vaihteluväli yyt))
-            |> List.foldl
-                (\paikka ( elävät, ulos ) ->
-                    let
-                        kuollut =
-                            ( elävät, piirrä Color.black Lisää )
-
-                        piirrä väri toiminto =
-                            (piirräRuutu mittakaava paikka väri
-                                |> onClick (toiminto paikka)
-                            )
-                                :: ulos
-                    in
-                        case elävät of
-                            eka :: loput ->
-                                if eka == paikka then
-                                    ( loput
-                                    , piirrä Color.green Poista
-                                    )
-                                else
-                                    kuollut
-
-                            [] ->
-                                kuollut
-                )
-                ( elävät, [] )
-            |> Tuple.second
-            |> group
+    karteesinenTulo (vaihteluväli äksät) (vaihteluväli yyt)
 
 
-piirräRuutu : Float -> Piste -> Color.Color -> Collage msg
-piirräRuutu mittakaava ( x, y ) väri =
-    square mittakaava
-        |> filled (uniform väri)
-        |> shift ( mittakaava * toFloat x, mittakaava * toFloat y )
+karteesinenTulo : List a -> List b -> List ( a, b )
+karteesinenTulo ekat toiset =
+    List.concatMap
+        (\x -> List.map ((,) x) toiset)
+        ekat
