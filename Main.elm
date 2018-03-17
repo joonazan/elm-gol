@@ -122,40 +122,23 @@ poistaRuudusta paikka =
 piirräRuudukko : Float -> Ruudukko -> Collage Viesti
 piirräRuudukko mittakaava ruudukko =
     näkyvätRuudut ruudukko
-        |> List.foldl
-            (\paikka ( elävät, ulos ) ->
-                let
-                    kuollut =
-                        ( elävät, piirrä Color.black Lisää )
-
-                    piirrä väri toiminto =
-                        (piirräRuutu mittakaava paikka väri
-                            |> onClick (toiminto paikka)
-                        )
-                            :: ulos
-                in
-                case elävät of
-                    eka :: loput ->
-                        if eka == paikka then
-                            ( loput
-                            , piirrä Color.green Poista
-                            )
-                        else
-                            kuollut
-
-                    [] ->
-                        kuollut
-            )
-            ( Set.toList ruudukko, [] )
-        |> Tuple.second
+        |> List.map (\p -> piirräRuutu mittakaava p (Set.member p ruudukko))
         |> group
 
 
-piirräRuutu : Float -> Piste -> Color.Color -> Collage msg
-piirräRuutu mittakaava ( x, y ) väri =
+piirräRuutu : Float -> Piste -> Bool -> Collage Viesti
+piirräRuutu mittakaava (( x, y ) as paikka) elossa =
+    let
+        ( väri, toiminto ) =
+            if elossa then
+                ( Color.green, Poista )
+            else
+                ( Color.black, Lisää )
+    in
     square mittakaava
         |> filled (uniform väri)
         |> shift ( mittakaava * toFloat x, mittakaava * toFloat y )
+        |> onClick (toiminto paikka)
 
 
 näkyvätRuudut : Ruudukko -> List Piste
