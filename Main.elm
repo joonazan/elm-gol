@@ -1,5 +1,11 @@
 module Main exposing (..)
 
+{-| #Life-peli
+@docs Piste, Ruudukko, laitaRuutuun, poistaRuudusta
+@docs piirräRuudukko, piirräRuutu, näkyvätRuudut
+@docs main
+-}
+
 import Collage exposing (..)
 import Collage.Events exposing (onClick)
 import Collage.Layout exposing (..)
@@ -11,6 +17,8 @@ import Html
 import Set exposing (Set)
 
 
+{-| Valmiin ohjelman entry point.
+-}
 main : Program Never Ruudukko Viesti
 main =
     Html.beginnerProgram
@@ -96,10 +104,21 @@ simuloi ruudukko =
         |> Set.fromList
 
 
+{-| Life tapahtuu kaksiulotteisessa ruudukossa.
+Ruudun määrittää yksiselitteisesti kokonaislukukoordinaatti.
+-}
 type alias Piste =
     ( Int, Int )
 
 
+{-| Elävien ruutujen koordinaatit.
+
+    Set on tähän hyvä valinta, sillä ...
+
+    Vaihtoehtoisesti voisi rakentaa taulukon,
+    jossa on jokaiselle ruudulle tieto siitä onko se elossa.
+
+-}
 type alias Ruudukko =
     Set Piste
 
