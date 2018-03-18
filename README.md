@@ -1,0 +1,1 @@
+This is not really a library, but a tutorial for programming Conways Game of Life in Elm. It is in finnish.
