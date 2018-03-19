@@ -16,7 +16,7 @@ Seuraava kuva piirretään näin:
 Teemme *Lifeä* simuloivan ohjelman, jossa käyttäjä voi herättää henkiin tai tappaa
 soluja mielensä mukaan ja viedä simulaatiota eteenpäin painamalla nappia.
 
-![kuva lopullisesta](https://i.imgur.com/dhIOxhQ.png)
+![kuva lopullisesta](https://raw.githubusercontent.com/joonazan/elm-gol/master/lopullinen.png)
 
 
 # 0. Maailman esittäminen
@@ -48,7 +48,7 @@ Laitetaan siihen myös eläviä soluja ettei se olisi vain tyhjää mustuutta.
 Kun olet määritellyt kaikki puuttuvat funktiot (lisätietoja alempana),
 lopputuloksen pitäisi näyttää suunnilleen tältä:
 
-![kuva piirtotestistä](https://i.imgur.com/LyFj0bt.png)
+![kuva piirtotestistä](https://raw.githubusercontent.com/joonazan/elm-gol/master/piirtotesti.png)
 
 @docs tyhja, laitaRuutuun
 @docs piirraRuudukko
@@ -191,7 +191,23 @@ jäljelle jäävät pelin seuraavan sukupolven elävät solut.
 
 Alla on aloituskuvioita, jotka tuottavat mielenkiintoisia tuloksia.
 
-    LISÄÄ KUVIA
+![kuva lopullisesta](https://raw.githubusercontent.com/joonazan/elm-gol/master/Life-olio-r-pentomino.png)<br>
+r-pentomino
+
+![kuva lopullisesta](https://raw.githubusercontent.com/joonazan/elm-gol/master/ikiliikkuja.gif)<br>
+ikiliikkuja
+
+![kuva lopullisesta](https://raw.githubusercontent.com/joonazan/elm-gol/master/Life-olio-kulkuri-glider.gif)<br>
+kulkuri (glider)
+
+![kuva lopullisesta](https://raw.githubusercontent.com/joonazan/elm-gol/master/Life-olio-avaruuslaiva.png)<br>
+avaruuslaiva
+
+![kuva lopullisesta](https://raw.githubusercontent.com/joonazan/elm-gol/master/life-olio-avaruuslaiva-weekender.png)<br>
+avaruuslaiva weekender
+
+![kuva lopullisesta](https://raw.githubusercontent.com/joonazan/elm-gol/master/life-olio-pulsari.png)<br>
+pulsari
 
 
 # Jatkokehitystä
